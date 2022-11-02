@@ -1,10 +1,10 @@
  var gridH: Int = 0
  var gridW: Int = 0
  var mines_amount: Int = 0
- var matrix: Array<Array<Int>> = Array(0, {Array(0, {0})})
+ var sapper_field: Array<Array<Int>> = Array(0, {Array(0, {0})})
  var revealed: Array<Array<Boolean>> = Array(0, {Array(0, {false})})
 
- fun showmatrix() {
+ fun showsapper_field() {
      for (i in 0..gridW - 1) {
          print("(${i})\t")
      }
@@ -13,7 +13,7 @@
      for (i in 0..gridH-1) {
          for (j in 0..gridW - 1) {
              if (revealed[i][j]) {
-                 print("[${matrix[i][j]}]")
+                 print("[${sapper_field[i][j]}]")
              } else {
                  print("[?]")
              }
@@ -31,7 +31,7 @@
          x = (Math.random() * (gridH)).toInt()
          y = (Math.random() * (gridW)).toInt()
          if (x != avoid_x && y != avoid_y) {
-             matrix[x][y] = 1
+             sapper_field[x][y] = 1
              i += 1
          }
      }
@@ -50,7 +50,7 @@
              if (i < 0 || j < 0 || i >= gridH || j >= gridW) {
                  continue
              }
-             if (matrix[i][j] == 1) {
+             if (sapper_field[i][j] == 1) {
                  mine_counter += 1
              }
          }
@@ -71,7 +71,7 @@
  }
 
  fun checkgamestate(current_x: Int, current_y: Int): String {
-     if (matrix[current_x][current_y] == 1) {
+     if (sapper_field[current_x][current_y] == 1) {
          return "GS_GameOver_Lost"
      }
      var counter: Int = 0
@@ -108,9 +108,9 @@ fun main(args: Array<String>) {
         mines_amount = readLine()!!.toInt()
     }
 
-    matrix = Array(gridH, {Array(gridW, {0})})
+    sapper_field = Array(gridH, {Array(gridW, {0})})
     revealed = Array(gridH, {Array(gridW, {false})})
-    showmatrix()
+    showsapper_field()
 
     println("-----------------------------------")
     println("Введите координаты (x, y): ")
@@ -118,7 +118,7 @@ fun main(args: Array<String>) {
     var y = readLine()!!.toInt()
     setupmines(mines_amount, x, y)
     revealfrompos(x, y, true)
-    showmatrix()
+    showsapper_field()
     println("-----------------------------------")
 
     var gameOver: Boolean = false
@@ -129,7 +129,7 @@ fun main(args: Array<String>) {
         x = readLine()!!.toInt()
         y = readLine()!!.toInt()
         revealfrompos(x, y, true)
-        showmatrix()
+        showsapper_field()
         println("-----------------------------------")
 
         gameState = checkgamestate(x, y)
