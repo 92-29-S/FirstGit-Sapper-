@@ -1,0 +1,145 @@
+ var gridH: Int = 0
+ var gridW: Int = 0
+ var mines_amount: Int = 0
+ var matrix: Array<Array<Int>> = Array(0, {Array(0, {0})})
+ var revealed: Array<Array<Boolean>> = Array(0, {Array(0, {false})})
+
+ fun showmatrix() {
+     for (i in 0..gridW - 1) {
+         print("(${i})\t")
+     }
+     println()
+
+     for (i in 0..gridH-1) {
+         for (j in 0..gridW - 1) {
+             if (revealed[i][j]) {
+                 print("[${matrix[i][j]}]")
+             } else {
+                 print("[?]")
+             }
+             print("\t")
+         }
+         print("(${i})\n")
+     }
+ }
+
+ fun setupmines(amount: Int, avoid_x: Int, avoid_y: Int) {
+     var i: Int = 0
+     var x: Int
+     var y: Int
+     while (i < amount) {
+         x = (Math.random() * (gridH)).toInt()
+         y = (Math.random() * (gridW)).toInt()
+         if (x != avoid_x && y != avoid_y) {
+             matrix[x][y] = 1
+             i += 1
+         }
+     }
+ }
+
+ fun revealfrompos(x: Int, y: Int, calledoutside: Boolean = false) {
+     if (x < 0 || y < 0 || x >= gridH || y >= gridW) {
+         return
+     }
+     if (revealed[x][y]) {
+         return
+     }
+     var mine_counter: Int = 0
+     for (i in x-1..x+1) {
+         for (j in y-1..y+1) {
+             if (i < 0 || j < 0 || i >= gridH || j >= gridW) {
+                 continue
+             }
+             if (matrix[i][j] == 1) {
+                 mine_counter += 1
+             }
+         }
+     }
+     if (mine_counter == 0) {
+         revealed[x][y] = true
+         revealfrompos(x-1, y)
+         revealfrompos(x+1, y)
+         revealfrompos(x, y-1)
+         revealfrompos(x, y+1)
+         revealfrompos(x-1, y-1)
+         revealfrompos(x+1, y-1)
+         revealfrompos(x-1, y+1)
+         revealfrompos(x+1, y+1)
+     } else if (calledoutside) {
+         revealed[x][y] = true
+     }
+ }
+
+ fun checkgamestate(current_x: Int, current_y: Int): String {
+     if (matrix[current_x][current_y] == 1) {
+         return "GS_GameOver_Lost"
+     }
+     var counter: Int = 0
+     for (i in 0..gridH-1) {
+         for (j in 0..gridW-1) {
+             if (!revealed[i][j]) {
+                 counter += 1
+             }
+         }
+     }
+     if (counter == mines_amount) {
+         return "GS_GameOver_Victory"
+     }
+     return "GS_GameContinue_None"
+ }
+
+fun main(args: Array<String>) {
+    print("Введите длину матрицы: ")
+    gridH = readLine()!!.toInt()
+    while (gridH <= 0) {
+        print("Число введено неверно. Введите его ещё раз: ")
+        gridH = readLine()!!.toInt()
+    }
+    print("Введите ширину матрицы: ")
+    gridW = readLine()!!.toInt()
+    while (gridW <= 0) {
+        print("Число введено неверно. Введите его ещё раз: ")
+        gridW = readLine()!!.toInt()
+    }
+    print("Введите количество мин: ")
+    mines_amount = readLine()!!.toInt()
+    while (mines_amount < 0) {
+        print("Число введено неверно. Введите его ещё раз: ")
+        mines_amount = readLine()!!.toInt()
+    }
+
+    matrix = Array(gridH, {Array(gridW, {0})})
+    revealed = Array(gridH, {Array(gridW, {false})})
+    showmatrix()
+
+    println("-----------------------------------")
+    println("Введите координаты (x, y): ")
+    var x = readLine()!!.toInt()
+    var y = readLine()!!.toInt()
+    setupmines(mines_amount, x, y)
+    revealfrompos(x, y, true)
+    showmatrix()
+    println("-----------------------------------")
+
+    var gameOver: Boolean = false
+    var gameState: String
+    while (!gameOver) {
+        println("-----------------------------------")
+        println("Введите координаты (x, y): ")
+        x = readLine()!!.toInt()
+        y = readLine()!!.toInt()
+        revealfrompos(x, y, true)
+        showmatrix()
+        println("-----------------------------------")
+
+        gameState = checkgamestate(x, y)
+        if (gameState == "GS_GameOver_Lost") {
+            print("Взрыв! Вы проиграли.")
+            gameOver = true
+        } else if (gameState == "GS_GameOver_Victory") {
+            print("Остались только мины. Вы победили!")
+            gameOver = true
+        }
+    }
+}
+
